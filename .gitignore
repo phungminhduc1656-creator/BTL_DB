@@ -1,0 +1,12 @@
+target/
+.local/
+.tools/
+.env
+.env.*
+!.env.example
+*.log
+.idea/
+*.iml
+.vscode/
+node_modules/
+test-results/
