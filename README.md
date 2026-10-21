@@ -60,6 +60,7 @@ Mở thư mục vừa tải rồi làm theo hướng dẫn nhấp đúp bên dư
 Mở thư mục dự án trong File Explorer:
 
 - Nhấp đúp **CHAY_UNG_DUNG.bat** để chạy. Chờ khởi động xong; trình duyệt sẽ tự mở đúng địa chỉ/cổng của ứng dụng.
+- Nếu cần kiểm tra bước biên dịch, nhấp đúp **BIEN_DICH_UNG_DUNG.bat**. File này chỉ tạo JAR, không khởi động MySQL hoặc website; thông báo biên dịch và mã kết quả được lưu tại `.local/logs/build.log`.
 - Mở **MO_KHACH_HANG.bat** để vào phía khách; đăng ký tài khoản mới để tự đặt sân.
 - Mở **MO_QUAN_LY.bat** để vào phía quản lý; đăng nhập **admin / admin123**.
 - Nhấp đúp **DUNG_UNG_DUNG.bat** để dừng cả Java và MySQL, giữ toàn bộ dữ liệu.
@@ -269,7 +270,7 @@ npx playwright install chromium
 
 Mặc định ảnh kiểm thử được lưu trong `.local/screenshots/`; ảnh phía khách nằm trong thư mục con `customer/`. Có thể đặt `QA_ARTIFACT_DIR` để đổi thư mục ảnh (đường dẫn tương đối tính từ gốc dự án), `PLAYWRIGHT_MODULE` để chỉ định module Playwright, và `PLAYWRIGHT_EXECUTABLE_PATH` để chọn trình duyệt (`CHROME_PATH` cũ vẫn được hỗ trợ).
 
-Đóng gói mã nguồn cùng JAR để gửi thành viên khác: chạy `scripts/package.ps1`. ZIP nằm trong `.local/releases`, không chứa dữ liệu MySQL, mật khẩu root hay cache Maven. Người nhận có thể chạy `scripts/start.ps1 -SkipBuild` để dùng JAR đã biên dịch.
+Đóng gói mã nguồn cùng JAR để gửi thành viên khác: chạy `scripts/package.ps1`. ZIP nằm trong `.local/releases`, không chứa dữ liệu MySQL, mật khẩu root hay cache Maven. Người nhận có thể chạy `scripts/start.ps1 -SkipBuild` để dùng JAR đã biên dịch. Nếu chưa có JAR (như bản tải từ GitHub), script tự biên dịch lần đầu; cần JDK 17+ và Internet.
 
 ## Xử lý lỗi thường gặp
 
@@ -277,6 +278,7 @@ Mặc định ảnh kiểm thử được lưu trong `.local/screenshots/`; ản
 |---|---|
 | Không thấy MySQL Server | Cài **MySQL Server**, không chỉ Workbench. Nếu đã cài tại đường dẫn tùy chỉnh, mở `CAU_HINH_MYSQL.bat`, nhập thư mục Server rồi chạy lại. |
 | Không tìm được Java | Đặt `JAVA_HOME` về thư mục JDK chứa `bin/java` và `bin/javac`. |
+| Thiếu JAR hoặc báo `Missing JAR` | Mở `BIEN_DICH_UNG_DUNG.bat`, chờ biên dịch xong rồi chạy lại ứng dụng. Nếu thất bại, xem hoặc gửi nội dung `.local/logs/build.log`; các dòng `[ERROR]` giải thích lỗi Maven/JDK/tải thư viện. |
 | MySQL không khởi động | Đọc `.local/logs/mysql.log`, kiểm tra cổng3307 đang được chương trình nào sử dụng. |
 | Không tải được thư viện lần đầu | Kiểm tra Internet và chạy lại `mvnw.cmd -U package`. |
 | Trình duyệt báo phiên không hợp lệ | Tải lại trang và đăng nhập lại; token CSRF thay đổi khi đăng nhập/đăng xuất. |

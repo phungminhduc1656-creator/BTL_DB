@@ -62,3 +62,12 @@ Kiểm thử trình duyệt sau cập nhật quy tắc đăng ký: desktop1440px
 - Windows PowerShell 5.1 cấu hình thư mục và tái sử dụng MySQL đang chạy thành công. Hai trang khách/quản lý HTTP 200, API cấu hình khách trả 17 khung giờ.
 - Bộ kiểm tra đường dẫn đạt **28/28 ca, 84 assertions** trên Windows PowerShell 5.1: thư mục Unicode/khoảng trắng, ưu tiên cấu hình, thiếu Server/client/admin, PID rỗng, pin dữ liệu cũ và tự tìm bộ cài. Các ca này không chạy MySQL thật.
 - Kiểm tra tìm thư mục MySQL 8.4 dùng bộ cài giả trong thư mục kiểm thử riêng; chưa chạy server MySQL 8.4 thật trong lần này. Bản sửa không cài thay MySQL Server trên máy khác.
+
+## Kiểm tra bước biên dịch trên Windows ngày 21/10/2026
+
+- Lấy mã nguồn từ Git HEAD vào thư mục kiểm tra riêng, không có `target/` từ dự án chính. Biên dịch thành công bằng Windows PowerShell 5.1; dùng Maven và thư viện đã có trong cache, chưa kiểm tra việc tải toàn bộ công cụ/thư viện từ cache rỗng trong lần này.
+- Chạy bản cuối `BIEN_DICH_UNG_DUNG.bat` trong đường dẫn có khoảng trắng và dấu `[]`, sau khi chuyển JAR có sẵn ra ngoài tên đích. BAT trả mã 0, tạo lại JAR 26.417.706 byte; `.local/logs/build.log` chứa `BUILD SUCCESS` và mã biên dịch 0. Đây là kiểm tra đóng gói, chưa kiểm tra khởi động toàn ứng dụng trong đường dẫn có dấu ngoặc.
+- Các script `build.ps1`, `maven.ps1`, `start.ps1`, `package.ps1` đều qua kiểm tra cú pháp PowerShell 5.1. Script khởi động gọi chung bước build, tự biên dịch nếu dùng `-SkipBuild` nhưng chưa có JAR.
+- Không dừng ứng dụng Java/MySQL đang chạy và không thay đổi DB chính trong các kiểm tra đóng gói. Các lần package này bỏ qua chạy test Java; kết quả SQL/Java ở mục trước thuộc lần kiểm tra riêng.
+- Hai kiểm tra lỗi bằng wrapper giả trong thư mục riêng đều đạt: native exit 7 dù có JAR cũ vẫn làm PowerShell trả lỗi và giữ stdout/stderr trong log; native exit 0 nhưng không tạo JAR cũng trả lỗi, ghi đường dẫn mong đợi và không báo biên dịch thành công.
+- Chưa tái hiện được nguyên nhân cụ thể của lỗi `Missing JAR` trên máy người nhận. Thêm BAT biên dịch riêng và nhật ký để lấy lỗi Maven/JDK thực tế, thay cho hướng dẫn bỏ `-SkipBuild` khi người dùng chỉ nhấp đúp launcher.

@@ -21,14 +21,17 @@ if (Test-Path -LiteralPath $pidFile) {
         exit 0
     }
 }
-Push-Location $projectRoot
+Push-Location -LiteralPath $projectRoot
 try {
     if (-not $ExistingDatabase) { & (Join-Path $PSScriptRoot 'start-mysql.ps1') }
-    if (-not $SkipBuild) {
-        & (Join-Path $projectRoot 'mvnw.cmd') -q -DskipTests package
-        if ($LASTEXITCODE -ne 0) { throw 'Java build failed.' }
+    $hasJar=Test-Path -LiteralPath $jarPath -PathType Leaf
+    if ($SkipBuild -and -not $hasJar) {
+        Write-Host 'Chua co JAR de tai su dung. Se bien dich Java trong lan chay nay.'
     }
-    if (-not (Test-Path -LiteralPath $jarPath)) { throw 'Missing JAR. Run again without -SkipBuild.' }
+    if (-not $SkipBuild -or -not $hasJar) {
+        & (Join-Path $PSScriptRoot 'build.ps1')
+    }
+    if (-not (Test-Path -LiteralPath $jarPath -PathType Leaf)) { throw 'Chua co file ung dung Java. Mo BIEN_DICH_UNG_DUNG.bat va xem .local\logs\build.log.' }
     $javaCommand='java'
     if ($env:JAVA_HOME) { $javaCommand=Join-Path $env:JAVA_HOME 'bin\java.exe' }
     elseif (Test-Path -LiteralPath 'D:\Java\bin\java.exe') { $javaCommand='D:\Java\bin\java.exe' }

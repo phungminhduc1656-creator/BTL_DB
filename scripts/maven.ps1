@@ -11,14 +11,16 @@ if (-not (Test-Path -LiteralPath $mavenCommand)) {
     $url = "https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/$version/apache-maven-$version-bin.zip"
     Write-Host "Downloading Apache Maven $version (first run only)..."
     Invoke-WebRequest -Uri $url -OutFile $zip -UseBasicParsing
-    $expected = ((Invoke-WebRequest -Uri "$url.sha512" -UseBasicParsing).Content.Trim() -split '\s+')[0]
+    $checksumContent = (Invoke-WebRequest -Uri "$url.sha512" -UseBasicParsing).Content
+    if ($checksumContent -is [byte[]]) { $checksumContent = [Text.Encoding]::UTF8.GetString($checksumContent) }
+    $expected = (([string]$checksumContent).Trim() -split '\s+')[0]
     $actual = (Get-FileHash -LiteralPath $zip -Algorithm SHA512).Hash
     if ($actual -ne $expected) { throw 'Maven archive checksum does not match.' }
     Expand-Archive -LiteralPath $zip -DestinationPath (Join-Path $projectRoot '.tools') -Force
 }
-Push-Location $projectRoot
+Push-Location -LiteralPath $projectRoot
 try {
-    & $mavenCommand "-Dmaven.repo.local=$(Join-Path $projectRoot '.tools\m2')" @args
+    & $mavenCommand "-Dmaven.repo.local=$(Join-Path $projectRoot '.tools\m2')" -f (Join-Path $projectRoot 'pom.xml') @args
     $result = $LASTEXITCODE
 } finally { Pop-Location }
 exit $result
