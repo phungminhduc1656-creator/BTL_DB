@@ -52,3 +52,13 @@ Kiểm thử trình duyệt sau cập nhật quy tắc đăng ký: desktop1440px
 - Chuẩn bị README cho người tải mã nguồn lần đầu: yêu cầu JDK/MySQL, clone hoặc Download ZIP, chạy bằng BAT, ảnh minh họa và giới hạn thanh toán hiện tại.
 - Bỏ đường dẫn runtime máy cá nhân trong hai smoke script. Cả hai đạt `node --check`; phần thay đổi cấu hình công cụ chưa chạy lại toàn bộ hành trình trình duyệt trong lần chuẩn bị GitHub này. Kết quả hành trình trình duyệt ở các mục trước thuộc lần kiểm tra ngày 15/10/2026.
 - Repository chỉ gồm mã nguồn, SQL/dữ liệu mẫu, tài liệu và ảnh demo đã chọn. Không đưa `.local/`, `.tools/`, `target/`, file `.env` hoặc `.env.*` riêng lên Git; giữ `.env.example` để hướng dẫn cấu hình. Mật khẩu MySQL đã đổi trên máy không được ghi vào mã nguồn.
+
+## Khắc phục máy mới thiếu MySQL Server ngày 21/10/2026
+
+- Phân biệt MySQL Workbench và MySQL Server trong README; thêm liên kết bộ cài Community Server và hướng dẫn cài máy mới.
+- Các script chạy/dừng/kiểm thử dùng chung bộ tìm công cụ MySQL. Hỗ trợ tham số, MYSQL_BASE, đường dẫn đã lưu, bộ cài chuẩn, PATH và dịch vụ; kiểm tra đủ server/client/admin cùng bộ cài.
+- Thêm CAU_HINH_MYSQL.bat để nhập thư mục Server và lưu cấu hình riêng trong .local/mysql-base.txt. Đường dẫn có khoảng trắng được giữ đúng; bộ cài đã dùng được ghi nhớ, dữ liệu cũ không tự đổi sang phiên bản khác khi mất đường dẫn.
+- Chạy lại 33/33 kiểm tra SQL và 20/20 kiểm thử Java/MySQL đạt trên MySQL 8.0.46. Dữ liệu khách/đơn/thanh toán của DB chính giữ nguyên.
+- Windows PowerShell 5.1 cấu hình thư mục và tái sử dụng MySQL đang chạy thành công. Hai trang khách/quản lý HTTP 200, API cấu hình khách trả 17 khung giờ.
+- Bộ kiểm tra đường dẫn đạt **28/28 ca, 84 assertions** trên Windows PowerShell 5.1: thư mục Unicode/khoảng trắng, ưu tiên cấu hình, thiếu Server/client/admin, PID rỗng, pin dữ liệu cũ và tự tìm bộ cài. Các ca này không chạy MySQL thật.
+- Kiểm tra tìm thư mục MySQL 8.4 dùng bộ cài giả trong thư mục kiểm thử riêng; chưa chạy server MySQL 8.4 thật trong lần này. Bản sửa không cài thay MySQL Server trên máy khác.

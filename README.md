@@ -10,10 +10,21 @@ Repository gồm mã nguồn, SQL, ERD, dữ liệu mẫu, kiểm thử và hư�
 
 - **Windows** để dùng các file BAT và script chạy nhanh có sẵn.
 - **JDK 17 trở lên**, gồm cả `java` và `javac`; đặt `JAVA_HOME` tới thư mục JDK nếu máy chưa nhận Java.
-- **MySQL Server 8.0.16 trở lên**. Script mặc định tìm tại `C:\Program Files\MySQL\MySQL Server 8.0`. Nếu cài ở nơi khác, xem mục xử lý lỗi hoặc cách dùng MySQL có sẵn bên dưới.
+- **MySQL Server 8.0.16 trở lên**; có thể cài **MySQL 8.4 LTS** cho máy mới. Script tự tìm thư mục Server đã cài. **Chỉ cài Workbench chưa đủ để chạy bài.** Nếu cài ở nơi khác, dùng `CAU_HINH_MYSQL.bat` theo hướng dẫn dưới.
 - **Internet trong lần chạy đầu** để tải Maven và thư viện. Maven được tải tự động, không cần cài riêng.
 
 MySQL Workbench chỉ cần khi muốn xem database bằng giao diện. Node.js và Playwright chỉ dùng cho kiểm thử trình duyệt, không phải điều kiện chạy web.
+
+## Cài MySQL Server trên máy khác
+
+**MySQL Workbench là công cụ xem/quản lý database; máy vẫn phải có MySQL Server để chạy ứng dụng.** Nếu thấy lỗi không tìm được MySQL Server, kiểm tra thành phần Server trước.
+
+1. Tải [MySQL Community Server 8.4 LTS](https://dev.mysql.com/downloads/mysql/8.4.html), chọn **Windows (x86, 64-bit), MSI Installer** và cài vào thư mục mặc định. [Hướng dẫn cài Windows của MySQL](https://dev.mysql.com/doc/refman/8.4/en/windows-installation.html).
+2. Nếu trình cấu hình tạo dịch vụ MySQL, có thể giữ cổng `3306`. Mật khẩu root đặt ở bước đó thuộc dịch vụ vừa cài.
+3. Tải bản mã nguồn mới nhất rồi mở `CHAY_UNG_DUNG.bat`. Bài dùng các chương trình MySQL đã cài để khởi động một database riêng tại `127.0.0.1:3307`; thông tin và dữ liệu của bài nằm trong `.local/`.
+4. Nếu Server cài ở thư mục tùy chỉnh và chưa được tự tìm thấy, mở **`CAU_HINH_MYSQL.bat`**, nhập thư mục chứa `bin\mysqld.exe` (ví dụ `D:\MySQL\MySQL Server 8.4`), rồi chạy lại ứng dụng.
+
+Các script dùng chung cơ chế tìm Server khi chạy, dừng và kiểm thử. Có thể chỉ định bằng tham số `-MysqlBase`, biến môi trường `MYSQL_BASE`, hoặc file cấu hình riêng `.local/mysql-base.txt`; đường dẫn cấu hình sai được báo lỗi để sửa. Sau khi khởi động thành công, bộ cài được ghi nhớ để các lần sau dùng lại đúng phiên bản. Với dữ liệu cũ mà không xác định được bộ cài đã dùng, script yêu cầu cấu hình rõ đường dẫn thay vì tự chọn một phiên bản khác.
 
 ## Tải mã nguồn
 
@@ -227,6 +238,12 @@ Kiểm thử dùng **MySQL thật**, không dùng H2 hay mock thay thế DB. Có
 - 33 kiểm tra SQL: ràng buộc, giao dịch, trạng thái và các tình huống cạnh tranh.
 - Kiểm thử tích hợp Java cho nghiệp vụ quản lý và khách hàng: tài khoản, quyền truy cập, chủ đơn, CSRF, hồ sơ và mật khẩu.
 
+Kiểm tra cơ chế tìm thư mục MySQL trên Windows, không chạy server/database thật:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\tests\mysql-tools.tests.ps1
+```
+
 Chạy kiểm thử Java bằng database riêng, giữ dữ liệu demo:
 
 ```powershell
@@ -258,7 +275,7 @@ Mặc định ảnh kiểm thử được lưu trong `.local/screenshots/`; ản
 
 | Hiện tượng | Cách xử lý |
 |---|---|
-| Không thấy MySQL Server tại đường dẫn mặc định | Chạy `scripts/start-mysql.ps1 -MysqlBase 'đường dẫn thư mục MySQL Server'`, hoặc dùng Docker/MySQL đã có. |
+| Không thấy MySQL Server | Cài **MySQL Server**, không chỉ Workbench. Nếu đã cài tại đường dẫn tùy chỉnh, mở `CAU_HINH_MYSQL.bat`, nhập thư mục Server rồi chạy lại. |
 | Không tìm được Java | Đặt `JAVA_HOME` về thư mục JDK chứa `bin/java` và `bin/javac`. |
 | MySQL không khởi động | Đọc `.local/logs/mysql.log`, kiểm tra cổng3307 đang được chương trình nào sử dụng. |
 | Không tải được thư viện lần đầu | Kiểm tra Internet và chạy lại `mvnw.cmd -U package`. |

@@ -4,7 +4,7 @@
 # không truyền mật khẩu vào dòng lệnh hoặc ghi mật khẩu vào mã nguồn.
 [CmdletBinding()]
 param(
-    [string]$Mysql = 'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe',
+    [string]$Mysql = '',
     [string]$HostName = '127.0.0.1',
     [int]$Port = 3307,
     [string]$UserName = 'root',
@@ -12,6 +12,11 @@ param(
     [switch]$KeepDatabase
 )
 $ErrorActionPreference = 'Stop'
+if ([string]::IsNullOrWhiteSpace($Mysql)) {
+    $projectRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
+    . (Join-Path $projectRoot 'scripts\mysql-tools.ps1')
+    $Mysql = (Resolve-ProjectMySql -ProjectRoot $projectRoot).Client
+}
 $testDatabase = 'pickleball_verify_' + [guid]::NewGuid().ToString('N')
 $sqlDirectory = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path.Replace('\', '/')
 $checks = 0

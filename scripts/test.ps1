@@ -7,15 +7,17 @@ if ([string]::IsNullOrEmpty($env:DB_PASSWORD)) {
     if (-not [string]::IsNullOrEmpty($savedDatabasePassword)) { $env:DB_PASSWORD=$savedDatabasePassword }
 }
 $projectRoot = Split-Path $PSScriptRoot -Parent
-$client = 'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe'
+. (Join-Path $PSScriptRoot 'mysql-tools.ps1')
+$tools = Resolve-ProjectMySql -ProjectRoot $projectRoot
+$client = $tools.Client
 $defaults = Join-Path $projectRoot '.local\mysql-admin.cnf'
-if (-not (Test-Path -LiteralPath $defaults)) { & (Join-Path $PSScriptRoot 'start-mysql.ps1') }
+& (Join-Path $PSScriptRoot 'start-mysql.ps1') -MysqlBase $tools.Base
 $sql = "CREATE DATABASE IF NOT EXISTS pickleball_integration_test CHARACTER SET utf8mb4; GRANT ALL PRIVILEGES ON pickleball_integration_test.* TO 'pickleball_app'@'127.0.0.1';"
 $sql | & $client "--defaults-extra-file=$defaults"
 if ($LASTEXITCODE -ne 0) { throw 'Cannot provision the dedicated integration test database.' }
 if ($IncludeSqlChecks) {
     if ($PSVersionTable.PSVersion.Major -lt 7) { throw 'Use PowerShell7 (pwsh) for -IncludeSqlChecks.' }
-    & (Join-Path $projectRoot 'database\tests\verify-mysql.ps1') -DefaultsFile $defaults
+    & (Join-Path $projectRoot 'database\tests\verify-mysql.ps1') -DefaultsFile $defaults -Mysql $client
 }
 $previousFlag = $env:RUN_MYSQL_TESTS
 $env:RUN_MYSQL_TESTS = 'true'

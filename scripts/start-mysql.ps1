@@ -1,14 +1,17 @@
 [CmdletBinding()]
-param([string]$MysqlBase = 'C:\Program Files\MySQL\MySQL Server 8.0')
+param([string]$MysqlBase)
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path $PSScriptRoot -Parent
 $localRoot = Join-Path $projectRoot '.local'
 $dataRoot = Join-Path $localRoot 'mysql'
 $logRoot = Join-Path $localRoot 'logs'
-$server = Join-Path $MysqlBase 'bin\mysqld.exe'
-$client = Join-Path $MysqlBase 'bin\mysql.exe'
-$admin = Join-Path $MysqlBase 'bin\mysqladmin.exe'
-if (-not (Test-Path -LiteralPath $server)) { throw "MySQL Server not found at $MysqlBase. Pass -MysqlBase or use docker compose up -d." }
+. (Join-Path $PSScriptRoot 'mysql-tools.ps1')
+$tools = Resolve-ProjectMySql -ProjectRoot $projectRoot -MysqlBase $MysqlBase
+$MysqlBase = $tools.Base
+$server = $tools.Server
+$client = $tools.Client
+$admin = $tools.Admin
+Write-Host ('Using MySQL Server at '+$MysqlBase)
 New-Item -ItemType Directory -Force -Path $dataRoot,$logRoot | Out-Null
 $fresh = -not (Test-Path -LiteralPath (Join-Path $dataRoot 'mysql'))
 if ($fresh) {
@@ -61,4 +64,5 @@ if (-not (Test-Path -LiteralPath $defaults)) {
     $content = "[client]`nuser=root`npassword=$rootPassword`nhost=127.0.0.1`nport=3307`nprotocol=TCP`n"
     [IO.File]::WriteAllText($defaults,$content,[Text.UTF8Encoding]::new($false))
 }
+[IO.File]::WriteAllText((Join-Path $localRoot 'mysql-base.txt'),$MysqlBase,[Text.UTF8Encoding]::new($false))
 Write-Host 'MySQL ready at 127.0.0.1:3307 (isolated project data).'
